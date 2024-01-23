@@ -7,13 +7,13 @@ import "package:os_gpu_detection/main.dart";
 int getGPUDetails() {
   if (Platform.isWindows) {
     return getWinGPUDetails();
-  } else if (Platform.isLinux) {
-    return getLinuxGPUDetails();
+  } else if (Platform.isLinux || Platform.isMacOS) {
+    return getNixGPUDetails();
   }
   return 0;
 }
 
-int getLinuxGPUDetails() {
+int getNixGPUDetails() {
   var gpuEnumFile = File('enum-gpu');
   var fileData = gpuEnumFile.readAsLinesSync();
   for (var i = 0; i < fileData.length; i++) {
