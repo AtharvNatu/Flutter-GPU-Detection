@@ -1,0 +1,2 @@
+# For macOS
+clang -shared -fpic a.c b.c -o libTest.dylib

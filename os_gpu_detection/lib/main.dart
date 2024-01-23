@@ -27,7 +27,7 @@ void main() async {
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
-      fullScreen: true,
+      fullScreen: false,
       windowButtonVisibility: true,
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
@@ -35,23 +35,33 @@ void main() async {
       await windowManager.focus();
     });
 
+    // // Linux GPU Detection
+    // if (Platform.isLinux) {
+    //   gpuInfoLibPath =
+    //       path.join(Directory.current.path, "ffi_lib", "libGPUInfo.so");
+    //   gpuInfoDynamicLib = DynamicLibrary.open(gpuInfoLibPath);
+    //   final RunGPUScript runGPUScript = gpuInfoDynamicLib
+    //       .lookup<NativeFunction<RunGPUScriptFunc>>("run_gpu_script")
+    //       .asFunction();
+    //   runGPUScript();
+    // }
+
     if (Platform.isLinux) {
-      if (kDebugMode) {
-        final dynamicLib =
-            dart_ffi.DynamicLibrary.open("lib/ffi_lib/libGPUInfo.so");
-        final RunGPUScript runGPUScript = dynamicLib
-            .lookup<dart_ffi.NativeFunction<RunGPUScriptFunc>>("run_gpu_script")
-            .asFunction();
-        runGPUScript();
-      } else {
-        var libraryPath =
-            path.join(Directory.current.path, "ffi_lib", "libGPUInfo.so");
-        final dynamicLib = dart_ffi.DynamicLibrary.open(libraryPath);
-        final RunGPUScript runGPUScript = dynamicLib
-            .lookup<dart_ffi.NativeFunction<RunGPUScriptFunc>>("run_gpu_script")
-            .asFunction();
-        runGPUScript();
-      }
+      var libraryPath =
+          path.join(Directory.current.path, "ffi_lib", "libGPUInfo.so");
+      final dynamicLib = dart_ffi.DynamicLibrary.open(libraryPath);
+      final RunGPUScript runGPUScript = dynamicLib
+          .lookup<dart_ffi.NativeFunction<RunGPUScriptFunc>>("run_gpu_script")
+          .asFunction();
+      runGPUScript();
+    } else if (Platform.isMacOS) {
+      var libraryPath =
+          path.join(Directory.current.path, "ffi_lib", "libGPUInfo.dylib");
+      final dynamicLib = dart_ffi.DynamicLibrary.open(libraryPath);
+      final RunGPUScript runGPUScript = dynamicLib
+          .lookup<dart_ffi.NativeFunction<RunGPUScriptFunc>>("run_gpu_script")
+          .asFunction();
+      runGPUScript();
     }
   }
 
@@ -247,7 +257,7 @@ showAlertDialog(BuildContext context) {
 }
 
 void appExit() {
-  if (Platform.isLinux) {
+  if (Platform.isLinux || Platform.isMacOS) {
     File("enum-gpu").deleteSync();
   }
 }
